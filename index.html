@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Todos</title>
+<style>
+html {
+    font: 300 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background: #f5f5f5;
+}
+h1 {
+    text-align: center;
+    font-weight: 200;
+    font-size: 80px;
+    margin: 1rem 0;
+    color: highlight;
+}
+footer {
+    margin-top: 3em;
+    font-size: smaller;
+    text-align: center;
+    color: grayText;
+}
+footer a:any-link {
+    color: inherit;
+    font-weight: 400;
+    text-decoration: none;
+}
+footer a:hover {
+    text-decoration: underline;
+}
+main {
+    max-width: 550px;
+    margin: auto;
+    background: #fff;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);
+}
+main input[type="text"] {
+    box-sizing: border-box;
+    width: 100%;
+    border: 0;
+    font: inherit;
+    font-size: 24px;
+    padding: 15px;
+    margin-inline-start: -44px;
+    padding-inline-start: 52px;
+    box-shadow: inset 0 -2px 1px rgba(0, 0,  0, .03);
+}
+main input[type="text"]::placeholder {
+    font-style: italic;
+    color: grayText;
+}
+
+todo-item {
+    border-top: 1px solid #eee;
+}
+todo-item:first-child {
+    border-color: #ddd;
+}
+
+#footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #eee;
+    padding: .5em 1em;
+    box-shadow: 0 1px 1px #0003,
+        0 8px 0 -3px #f6f6f6,
+        0 9px 1px -3px #0003,
+        0 16px 0 -6px #f6f6f6,
+        0 17px 2px -6px #0003;
+}
+#footer[hidden] {
+    display: none;
+}
+
+#clear-button {
+    background: none;
+    color: inherit;
+    padding: 0;
+    border: 0;
+    font: inherit;
+    cursor: pointer;
+}
+#clear-button:hover {
+    text-decoration: underline;
+}
+
+#filters input {
+    position: absolute;
+    clip-path: inset(50%);
+}
+#filters {
+    display: flex;
+    gap: .5em;
+}
+#filters a {
+    padding: .25em .5em;
+    border-radius: 3px;
+    border: 1px solid transparent;
+    color: inherit;
+    text-decoration: none;
+}
+#filters [aria-current="true"] {
+    border-color: highlight;
+}
+
+#toggle-all {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 44px;
+    order: -1;
+    z-index: 1;
+    cursor: default
+}
+#toggle-all[hidden] {
+    visibility: hidden;
+}
+#toggle-all[aria-checked="false"] > * {
+    opacity: .25;
+}
+
+#todos[data-filter="active"] [completed] {
+    display: none;
+}
+#todos[data-filter="completed"] :not([completed]) {
+    display: none;
+}
+</style>
+<h1>todos</h1>
+<main>
+    <form style="display: flex">
+        <input type="text" placeholder="What needs to be done?">
+        <div id="toggle-all" role="checkbox" aria-checked="false" tabindex="0" title="Mark all as complete" hidden><div aria-hidden="true" style="font-size: 22px; transform: rotate(90deg)">❯</div></div>
+    </form>
+    <div id="todos"></div>
+    <form id="footer" hidden>
+        <div style="flex: 1 1 0" id="count"></div>
+        <div id="filters">
+            <a aria-current="true" href="#/all">All</a>
+            <a href="#/active">Active</a>
+            <a href="#/completed">Completed</a>
+        </div>
+        <div style="flex: 1 1 0; text-align: end">
+            <button id="clear-button" type="button">Clear completed</button>
+        </div>
+    </form>
+</main>
+<footer>
+    <p>Double-click to edit a todo
+    <p>Created by <a href="https://github.com/johnfactotum">John Factotum</a>
+    <p>After <a href="http://todomvc.com/">TodoMVC</a>
+</footer>
+<template id="todo-item-template">
+    <style>
+    :host {
+        display: flex;
+        font-size: 24px;
+        align-items: center;
+    }
+    :host > * {
+        padding: 15px;
+    }
+    :host([hidden]) {
+        display: none;
+    }
+    :host([completed]) span {
+        opacity: .4;
+        text-decoration: line-through;
+    }
+    input, button {
+        background: none;
+        color: inherit;
+        padding: 0;
+        border: 0;
+        font: inherit;
+    }
+    button {
+        display: none;
+    }
+    :host(:hover) button {
+        display: block;
+    }
+    :host([editing]) button {
+        display: none;
+    }
+    span, #input {
+        flex: 1;
+    }
+    :host([editing]) span {
+        display: none;
+    }
+    :host(:not([editing])) #input {
+        display: none;
+    }
+    #checkbox {
+        font-weight: 600;
+        color: transparent;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0;
+    }
+    :host([completed]) svg circle {
+        stroke: highlight;
+    }
+    :host([completed]) svg path {
+        fill: highlight;
+    }
+    :host([editing]) #checkbox {
+        visibility: hidden;
+    }
+    </style>
+    <div id="checkbox" role="checkbox" tabindex="0" aria-checked="false" aria-labelledby="span">
+        <svg aria-hidden="true" width="40" height="40" viewBox="-10 -18 100 135">
+            <circle cx="50" cy="50" r="50" fill="none" stroke="#ccc" stroke-width="3"/>
+            <path d="M72 25L42 71 27 56l-4 4 20 20 34-52z" fill="none"/>
+        </svg>
+    </div>
+    <span id="span"></span>
+    <input type="text" id="input"></input>
+    <button title="Delete">×</button>
+</template>
+<script>
+customElements.define('todo-item', class extends HTMLElement {
+    static observedAttributes = ['editing', 'completed', 'description']
+    #root = this.attachShadow({ mode: 'closed' })
+    constructor() {
+        super()
+        const template = document.querySelector('#todo-item-template')
+        this.#root.append(template.content.cloneNode(true))
+
+        this.#root.querySelector('#checkbox').addEventListener('click', () => {
+            if (this.hasAttribute('completed')) this.removeAttribute('completed')
+            else this.setAttribute('completed', '')
+        })
+        this.#root.querySelector('button').addEventListener('click', () =>
+            this.remove())
+        this.#root.querySelector('span').addEventListener('dblclick', () => {
+            this.setAttribute('editing', '')
+            this.#root.querySelector('#input').focus()
+        })
+        this.#root.querySelector('#input').addEventListener('keydown', e => {
+            if (e.key === 'Enter') e.target.blur()
+            else if (e.key === 'Escape') this.removeAttribute('editing')
+        })
+        this.addEventListener('blur', () => {
+            if (this.hasAttribute('editing')) {
+                const { value } = this.#root.querySelector('#input')
+                this.setAttribute('description', value)
+                this.removeAttribute('editing')
+            }
+        })
+    }
+    attributeChangedCallback(name, _, val) {
+        switch (name) {
+            case 'completed':
+                this.#root.querySelector('#checkbox').ariaChecked =
+                    val != null ? 'true' : 'false'
+                break
+            case 'description':
+                this.#root.querySelector('span').textContent = val
+                break
+            case 'editing':
+                this.#root.querySelector('#input').value =
+                    this.getAttribute('description')
+                break
+        }
+    }
+})
+
+const todos = document.querySelector('#todos')
+
+document.querySelector('form').addEventListener('submit', e => {
+    e.preventDefault()
+    const { value } = e.target.querySelector('input')
+    if (!value.trim()) return
+    const item = document.createElement('todo-item')
+    item.setAttribute('description', value)
+    todos.append(item)
+    e.target.reset()
+})
+
+document.querySelector('#toggle-all').addEventListener('click', e => {
+    const checked = e.currentTarget.ariaChecked === 'true'
+    if (checked) for (const item of todos.children) item.removeAttribute('completed')
+    else for (const item of todos.children) item.setAttribute('completed', '')
+    e.currentTarget.ariaChecked = !checked
+})
+
+document.querySelector('#clear-button').addEventListener('click', () => {
+    for (const item of todos.querySelectorAll('[completed]')) item.remove()
+})
+
+const load = () => todos.innerHTML = localStorage.getItem('todos')
+const updateAndSave = () => {
+    const total = todos.children.length
+    const completed = todos.querySelectorAll('[completed]').length
+    const active = total - completed
+
+    document.querySelector('#count').textContent =
+        `${active} ${active === 1 ? 'item' : 'items'} left`
+    document.querySelector('#clear-button').hidden = completed === 0
+    document.querySelector('#footer').hidden = total === 0
+    document.querySelector('#toggle-all').hidden = total === 0
+    document.querySelector('#toggle-all').ariaChecked = completed === total
+
+    localStorage.setItem('todos', todos.innerHTML)
+}
+
+const itemObserver = new MutationObserver(updateAndSave)
+new MutationObserver(mutations => {
+    for (const mutation of mutations)
+        for (const node of mutation.addedNodes) itemObserver.observe(node, {
+            attributes: true,
+            attributefilter: ['completed', 'description'],
+        })
+    updateAndSave()
+}).observe(todos, { childList: true })
+
+const updateFilter = () => {
+    const hash = location.hash || '#/all'
+    todos.dataset.filter = hash.replace('#/', '')
+    for (const a of document.querySelectorAll('#filters a'))
+        a.ariaCurrent = a.getAttribute('href') === hash ? 'true' : null
+}
+addEventListener('hashchange', updateFilter)
+updateFilter()
+
+addEventListener('storage', load)
+load()
+</script>
