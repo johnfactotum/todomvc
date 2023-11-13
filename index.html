@@ -131,7 +131,7 @@ todo-item:first-child {
 <h1>todos</h1>
 <main>
     <form style="display: flex">
-        <input type="text" placeholder="What needs to be done?">
+        <input type="text" placeholder="What needs to be done?" autofocus>
         <div id="toggle-all" role="checkbox" aria-checked="false" tabindex="0" title="Mark all as complete" hidden><div aria-hidden="true" style="font-size: 22px; transform: rotate(90deg)">❯</div></div>
     </form>
     <div id="todos"></div>
@@ -247,9 +247,11 @@ customElements.define('todo-item', class extends HTMLElement {
         })
         this.addEventListener('blur', () => {
             if (this.hasAttribute('editing')) {
-                const { value } = this.#root.querySelector('#input')
-                this.setAttribute('description', value)
-                this.removeAttribute('editing')
+                const value = this.#root.querySelector('#input').value.trim()
+                if (value) {
+                    this.setAttribute('description', value)
+                    this.removeAttribute('editing')
+                } else this.remove()
             }
         })
     }
@@ -274,8 +276,8 @@ const todos = document.querySelector('#todos')
 
 document.querySelector('form').addEventListener('submit', e => {
     e.preventDefault()
-    const { value } = e.target.querySelector('input')
-    if (!value.trim()) return
+    const value = e.target.querySelector('input').value.trim()
+    if (!value) return
     const item = document.createElement('todo-item')
     item.setAttribute('description', value)
     todos.append(item)
