@@ -1,4 +1,4 @@
-# TodoMVC in less than 100 lines of vanilla JavaScript
+# TodoMVC in ~100 lines of vanilla JavaScript
 
 Or: How I Learned to Stop Worrying and Love the DOM
 
@@ -119,7 +119,7 @@ What are some other advantages of storing data in the DOM? For one, remember tha
 
 ## The result
 
-To experiment with this approach, I made a [TodoMVC](https://todomvc.com) implementation. It contains only 98 lines of code in vanilla JavaScript, which is 1kb minified and gzipped.
+To experiment with this approach, I made a [TodoMVC](https://todomvc.com) implementation. It contains only 101 lines of code in vanilla JavaScript, which is 1kb minified and gzipped.
 
 But I'm cheating a little with that number. Because some bits aren't implemented with JavaScript at all. For example, filtering items by completion state is done using just CSS:
 
