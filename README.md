@@ -140,4 +140,4 @@ For years, people have been keeping states in JavaScript and rendering them in t
 
 The DOM is designed to hold data. The "M" in "DOM" literally stands for "model". Using it only as a view is counterintuitive and counterproductive.
 
-You might not need data binding, or virtual DOM, or state management, or the whole jungle... if the state is stored in the DOM, which you can be implement cleanly today with Web Components and Mutation Observers.
+You might not need data binding, or virtual DOM, or state management, or the whole jungle... if the state is stored in the DOM, which can be implemented cleanly today with Web Components and Mutation Observers.
