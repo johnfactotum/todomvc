@@ -134,7 +134,7 @@ todo-item:first-child {
         <input type="text" placeholder="What needs to be done?" autofocus>
         <div id="toggle-all" role="checkbox" aria-checked="false" tabindex="0" title="Mark all as complete" hidden><div aria-hidden="true" style="font-size: 22px; transform: rotate(90deg)">❯</div></div>
     </form>
-    <div id="todos"></div>
+    <div id="todos" role="list"></div>
     <form id="footer" hidden>
         <div style="flex: 1 1 0" id="count"></div>
         <div id="filters">
@@ -228,9 +228,12 @@ customElements.define('todo-item', class extends HTMLElement {
     #root = this.attachShadow({ mode: 'closed' })
     constructor() {
         super()
+        this.attachInternals().role = 'listitem'
         const template = document.querySelector('#todo-item-template')
         this.#root.append(template.content.cloneNode(true))
 
+        this.#root.querySelector('#checkbox').addEventListener('keydown', e =>
+            e.key === ' ' ? (e.preventDefault(), e.target.click()) : null)
         this.#root.querySelector('#checkbox').addEventListener('click', () => {
             if (this.hasAttribute('completed')) this.removeAttribute('completed')
             else this.setAttribute('completed', '')
